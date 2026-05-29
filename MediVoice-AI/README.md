@@ -52,3 +52,8 @@ pip install -r requirements.txt
 GEMINI_API_KEY=your_actual_restricted_gcp_api_key
 
 uvicorn app.main:app --reload
+
+# git add .
+# git commit -m "Describe what you changed"
+# For main github: git push origin main
+# For huggingface: git subtree push --prefix MediVoice-AI huggingface main
