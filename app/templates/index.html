@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediVoice - Conversation Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
+        .custom-scrollbar:hover::-webkit-scrollbar-thumb { background: #4B5563; }
+    </style>
+</head>
+<body class="bg-[#0f111a] text-gray-100 h-screen overflow-hidden font-sans flex transition-all duration-300">
+
+    <div class="w-80 bg-[#141724] border-r border-gray-800 p-6 flex flex-col justify-between hidden md:flex shrink-0 overflow-y-auto custom-scrollbar">
+        <div class="space-y-8">
+            <div class="flex items-center gap-2 text-indigo-400 font-bold text-xl tracking-wide pb-4 border-b border-gray-800/80">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+                MediVoice AI
+            </div>
+            <div class="space-y-3">
+                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">About the Product</h3>
+                <p class="text-sm text-gray-300 leading-relaxed">An end-to-end multimodal AI reasoning engine built to parse, evaluate, and converse about complex health insurance policies with strict logical guardrails.</p>
+            </div>
+            <div class="space-y-3">
+                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Core Architecture</h3>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-2 py-1 bg-blue-500/10 text-blue-400 text-[10px] font-semibold rounded border border-blue-500/20">FastAPI</span>
+                    <span class="px-2 py-1 bg-purple-500/10 text-purple-400 text-[10px] font-semibold rounded border border-purple-500/20">Gemini 2.5 Flash</span>
+                    <span class="px-2 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-semibold rounded border border-emerald-500/20">ChromaDB RAG</span>
+                    <span class="px-2 py-1 bg-yellow-500/10 text-yellow-400 text-[10px] font-semibold rounded border border-yellow-500/20">Real-time TTS/STT</span>
+                </div>
+            </div>
+            <div class="space-y-3">
+                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">How to Use</h3>
+                <ol class="text-xs text-gray-300 space-y-2.5 list-decimal pl-4">
+                    <li class="pl-1"><strong class="text-gray-200">Sync Data:</strong> Upload a policy PDF to vectorize it into the Knowledge Base.</li>
+                    <li class="pl-1"><strong class="text-gray-200">Query:</strong> Tap the Mic to record a voice note, or type a query.</li>
+                    <li class="pl-1"><strong class="text-gray-200">Audit:</strong> Review the AI's internal reasoning chain & exact token economics.</li>
+                </ol>
+            </div>
+            <div class="space-y-3 bg-indigo-900/20 p-4 rounded-xl border border-indigo-500/20">
+                <h3 class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Engineering Notes
+                </h3>
+                <p class="text-[11px] text-gray-300 leading-relaxed">Designed to showcase strict structural control over LLMs. The backend forces Gemini to return strict JSON, structurally separating its technical document analysis (the "Brain") from its concise, human-friendly conversational script (the "Mouth").</p>
+            </div>
+        </div>
+        <div class="space-y-4 pt-6 mt-6 border-t border-gray-800">
+            <div class="flex justify-between items-center text-sm text-gray-400">
+                <span>Dark Mode</span>
+                <div id="themeToggle" class="w-10 h-5 bg-indigo-600 rounded-full p-0.5 cursor-pointer flex items-center transition-colors duration-300">
+                    <div id="themeToggleCircle" class="w-4 h-4 bg-white rounded-full shadow transform translate-x-5 transition-transform duration-300"></div>
+                </div>
+            </div>
+            <div class="bg-[#0f111a] p-4 rounded-xl border border-gray-800/60">
+                <div class="flex items-center gap-2 text-xs font-semibold text-emerald-400">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    System Operational
+                </div>
+                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">All core reasoning pipelines running efficiently.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex-1 flex flex-col min-w-0 h-full">
+        <div class="flex justify-between items-center px-8 py-4 bg-[#141724]/40 border-b border-gray-800/80">
+            <div>
+                <h1 class="text-xl font-bold text-white tracking-tight">MediVoice AI</h1>
+                <p class="text-xs text-gray-500">Real-time Incentive & Reasoning Engine</p>
+            </div>
+            <div id="statusIndicator" class="px-3 py-1 rounded-full bg-gray-800 text-emerald-400 text-xs font-medium border border-gray-700 flex items-center gap-1.5 transition-all">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> System Ready
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-8 space-y-6 max-w-4xl mx-auto w-full custom-scrollbar" id="conversationStream">
+            <div class="flex items-center gap-2 text-xs font-semibold text-gray-400 bg-gray-800/30 px-3 py-1.5 rounded-lg border border-gray-800 w-fit">
+                <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <span id="activePolicyName">No Policy Loaded</span>
+            </div>
+            <div id="emptyState" class="text-center text-sm text-gray-500 py-12 italic">Awaiting voice or text query input below to populate the live audit feed...</div>
+            <div id="chatFeed" class="space-y-6"></div>
+        </div>
+
+        <div class="bg-[#141724]/80 border-t border-gray-800/80 p-6 space-y-4 backdrop-blur-md shrink-0">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 max-w-4xl mx-auto w-full">
+                <div class="bg-[#0f111a] p-3 rounded-xl border border-gray-800 flex items-center gap-3">
+                    <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-[9px] text-gray-500 uppercase tracking-wider font-semibold truncate">Input Tokens</p>
+                        <div class="mt-1 flex flex-col gap-1"><p id="uiInputTokens" class="text-sm font-bold text-gray-200 leading-none">0</p><p id="uiTotalInput" class="text-[9px] font-medium text-emerald-500/80 leading-none">Tot: 0</p></div>
+                    </div>
+                </div>
+                <div class="bg-[#0f111a] p-3 rounded-xl border border-gray-800 flex items-center gap-3">
+                    <div class="p-2 bg-indigo-500/10 text-indigo-400 rounded-lg shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg></div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-[9px] text-gray-500 uppercase tracking-wider font-semibold truncate">Output Tokens</p>
+                        <div class="mt-1 flex flex-col gap-1"><p id="uiOutputTokens" class="text-sm font-bold text-gray-200 leading-none">0</p><p id="uiTotalOutput" class="text-[9px] font-medium text-indigo-400/80 leading-none">Tot: 0</p></div>
+                    </div>
+                </div>
+                <div class="bg-[#0f111a] p-3 rounded-xl border border-gray-800 flex items-center gap-3">
+                    <div class="p-2 bg-yellow-500/10 text-yellow-400 rounded-lg shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M12 16V5"></path></svg></div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-[9px] text-gray-500 uppercase tracking-wider font-semibold truncate">API Cost</p>
+                        <div class="mt-1 flex flex-col gap-1"><p id="uiCost" class="text-sm font-bold text-yellow-400 leading-none">$0.00</p><p id="uiTotalCost" class="text-[9px] font-medium text-yellow-500/80 leading-none">Tot: $0.00</p></div>
+                    </div>
+                </div>
+                <div class="bg-[#0f111a] p-3 rounded-xl border border-gray-800 flex items-center gap-3">
+                    <div class="p-2 bg-blue-500/10 text-blue-400 rounded-lg shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"></path></svg></div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-[9px] text-gray-500 uppercase tracking-wider font-semibold truncate">RAG Confidence</p>
+                        <div class="mt-1 flex flex-col gap-1"><p id="uiRag" class="text-sm font-bold text-blue-400 leading-none">0.00</p><p id="uiAvgRag" class="text-[9px] font-medium text-blue-400/80 leading-none">Avg: 0.00</p></div>
+                    </div>
+                </div>
+                <div class="bg-[#0f111a] p-3 rounded-xl border border-gray-800 flex items-center gap-3">
+                    <div class="p-2 bg-gray-500/10 text-gray-400 rounded-lg shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-[9px] text-gray-500 uppercase tracking-wider font-semibold truncate">Latency</p>
+                        <div class="mt-1 flex flex-col gap-1"><p id="uiLatency" class="text-sm font-bold text-gray-300 leading-none">0.0s</p><p id="uiAvgLatency" class="text-[9px] font-medium text-gray-500 leading-none">Avg: 0.0s</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="max-w-4xl mx-auto w-full flex flex-col gap-1 relative">
+
+                <div id="standardInputUI" class="w-full flex items-center bg-[#0f111a] border border-gray-800 rounded-xl p-2 gap-3 shadow-inner transition-all">
+                    <button id="micBtn" class="p-2.5 rounded-lg bg-gray-800/80 hover:bg-gray-700/80 transition-colors text-indigo-400 select-none cursor-pointer" title="Tap to Record">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+                    </button>
+
+                    <input type="text" id="textInput" placeholder="Type a message or tap Mic..." autocomplete="off"
+                           class="flex-1 bg-transparent text-gray-200 px-2 text-sm focus:outline-none placeholder-gray-600">
+
+                    <input type="file" id="pdfUpload" accept="application/pdf" class="hidden" />
+                    <label for="pdfUpload" class="p-2.5 rounded-lg bg-gray-800/50 hover:bg-gray-700 transition-colors text-gray-400 cursor-pointer" title="Upload Knowledge Base">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                    </label>
+
+                    <button id="textSubmitBtn" class="p-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 transition-colors text-white">
+                        <svg class="w-5 h-5 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                    </button>
+                </div>
+
+                <div id="recordingUI" class="hidden w-full items-center justify-between bg-red-900/10 border border-red-500/30 rounded-xl p-2 px-4 shadow-inner">
+                    <div class="flex items-center gap-3">
+                        <span class="w-3 h-3 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]"></span>
+                        <span class="text-red-400 text-sm font-semibold tracking-wide">Recording Voice Note...</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button id="discardAudioBtn" class="p-2 rounded-lg bg-gray-800/80 hover:bg-gray-700 hover:text-red-400 transition-colors text-gray-400" title="Discard">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                        <button id="sendAudioBtn" class="p-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 transition-colors text-white shadow-md shadow-indigo-900/20" title="Send Audio">
+                            <svg class="w-5 h-5 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="uploadStatus" class="text-[11px] text-center text-gray-500 h-4 font-medium transition-all"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+                document.getElementById('activePolicyName').textContent = data.active_policy;
+            } catch(e) {
+                console.error("Could not sync with backend knowledge base.");
+            }
+        });
+
+        const textInput = document.getElementById('textInput');
+        const textSubmitBtn = document.getElementById('textSubmitBtn');
+        const statusInd = document.getElementById('statusIndicator');
+        const chatFeed = document.getElementById('chatFeed');
+        const emptyState = document.getElementById('emptyState');
+        const conversationStream = document.getElementById('conversationStream');
+
+        // Toggle UI Elements
+        const standardUI = document.getElementById('standardInputUI');
+        const recordingUI = document.getElementById('recordingUI');
+        const micBtn = document.getElementById('micBtn');
+        const discardAudioBtn = document.getElementById('discardAudioBtn');
+        const sendAudioBtn = document.getElementById('sendAudioBtn');
+
+        // Dark Mode Logic
+        let isDarkMode = true;
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) {
+                document.getElementById('themeToggle').classList.replace('bg-gray-500', 'bg-indigo-600');
+                document.getElementById('themeToggleCircle').classList.replace('translate-x-0', 'translate-x-5');
+                document.documentElement.style.filter = '';
+            } else {
+                document.getElementById('themeToggle').classList.replace('bg-indigo-600', 'bg-gray-500');
+                document.getElementById('themeToggleCircle').classList.replace('translate-x-5', 'translate-x-0');
+                document.documentElement.style.filter = 'invert(1) hue-rotate(180deg)';
+            }
+        });
+
+        // Chat UI Helpers
+        function scrollToBottom() {
+            setTimeout(() => { conversationStream.scrollTo({ top: conversationStream.scrollHeight, behavior: 'smooth' }); }, 50);
+        }
+
+        function appendUserMessage(text) {
+            emptyState.style.display = 'none';
+            const userDiv = document.createElement('div');
+            userDiv.className = "flex justify-end mb-6 animate-fadeIn";
+            userDiv.innerHTML = `<div class="bg-[#1c2035] text-gray-200 text-sm max-w-xl px-4 py-3 rounded-2xl rounded-tr-none border border-gray-700/40 shadow-sm"><span class="text-xs font-bold text-indigo-400 block mb-0.5">User</span>"${text}"</div>`;
+            chatFeed.appendChild(userDiv);
+            scrollToBottom();
+        }
+
+        function showLoadingBubble(message = "AI is reasoning...") {
+            const loadDiv = document.createElement('div');
+            loadDiv.id = "activeLoadingBubble";
+            loadDiv.className = "bg-[#141724] border border-gray-800 rounded-2xl p-5 shadow-lg max-w-2xl mb-6 animate-pulse";
+            loadDiv.innerHTML = `<div class="flex items-center gap-3"><div class="flex gap-1"><span class="w-2 h-2 rounded-full bg-purple-400 animate-bounce"></span><span class="w-2 h-2 rounded-full bg-purple-400 animate-bounce" style="animation-delay: 0.2s"></span><span class="w-2 h-2 rounded-full bg-purple-400 animate-bounce" style="animation-delay: 0.4s"></span></div><span class="text-sm font-semibold text-purple-400">${message}</span></div>`;
+            chatFeed.appendChild(loadDiv);
+            scrollToBottom();
+        }
+
+        function removeLoadingBubble() {
+            const loader = document.getElementById('activeLoadingBubble');
+            if (loader) loader.remove();
+        }
+
+        function appendAIMessage(data) {
+            let formattedReasoningHTML = "- No sequential tracking text found.";
+            if (data.ai_reasoning_chain) {
+                const steps = data.ai_reasoning_chain.split(/\n+/).filter(t => t.trim().length > 0);
+                formattedReasoningHTML = steps.map((step, idx) => `<div class="flex items-start gap-2 text-xs text-gray-300 py-1 border-b border-gray-800/30 last:border-0"><span class="text-indigo-400 font-bold font-mono">${idx + 1}.</span><span class="flex-1 leading-relaxed">${step.replace(/^\d+\.\s*/, '')}</span></div>`).join('');
+            }
+
+            const aiCard = document.createElement('div');
+            aiCard.className = "space-y-4 animate-fadeIn border-b border-gray-800/40 pb-6 mb-6 last:border-0";
+            aiCard.innerHTML = `
+                <div class="bg-[#141724] border border-gray-800 rounded-2xl p-5 shadow-lg space-y-4">
+                    <div class="flex justify-between items-start gap-4">
+                        <div class="flex-1 space-y-1">
+                            <span class="text-xs font-bold text-purple-400 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-purple-400"></span> AI Agent Response</span>
+                            <p class="text-sm text-gray-200 leading-relaxed font-medium">${data.generated_voice_script || '-'}</p>
+                        </div>
+                        <button class="text-xs font-semibold text-indigo-400 border border-indigo-500/20 px-2.5 py-1 rounded-lg bg-indigo-500/5 hover:bg-indigo-500/10 flex items-center gap-1 transition-all shrink-0" onclick="playTurnAudio('${data.audio_url || ''}')">🔊 Listen / Pause</button>
+                    </div>
+                    <div class="border border-gray-800 bg-[#0f111a]/80 rounded-xl overflow-hidden">
+                        <details class="group">
+                            <summary class="flex justify-between items-center px-4 py-3 text-xs font-bold text-gray-400 cursor-pointer select-none bg-gray-800/20 group-hover:bg-gray-800/30 transition-colors"><span class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 transform group-open:rotate-180 transition-transform text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>See Step-by-Step Reasoning (Document Citation)</span></summary>
+                            <div class="p-4 space-y-1 border-t border-gray-800 bg-[#0f111a]/40">${formattedReasoningHTML}</div>
+                        </details>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 bg-[#0f111a] border border-gray-800/80 p-3 rounded-xl max-w-lg">
+                        <div><span class="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Matched Intent</span><p class="text-xs font-mono text-indigo-400 font-semibold mt-0.5 flex items-center gap-1">${data.matched_intent || 'Unknown'}</p></div>
+                        <div class="border-l border-gray-800/80 pl-3"><span class="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Relevance Score</span><p class="text-xs font-mono text-emerald-400 font-semibold mt-0.5 flex items-center gap-1">🎯 ${data.metrics?.rag_confidence || '0.00'}</p></div>
+                    </div>
+                </div>
+            `;
+            chatFeed.appendChild(aiCard);
+            scrollToBottom();
+            updateGlobalTelemetryStrip(data);
+        }
+
+        function appendErrorCard(errorMessage) {
+            const errCard = document.createElement('div');
+            errCard.className = "bg-red-900/20 border border-red-500/30 rounded-xl p-4 max-w-2xl mb-6 flex items-start gap-3 animate-fadeIn";
+            errCard.innerHTML = `<div class="text-red-400 mt-0.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg></div><div><span class="text-sm font-bold text-red-400 block">System Error</span><span class="text-xs text-red-300">${errorMessage}</span></div>`;
+            chatFeed.appendChild(errCard);
+            scrollToBottom();
+        }
+
+        let currentAudioPlayer = null, currentAudioUrl = null;
+        function playTurnAudio(url) {
+            if (!url) return;
+            if (currentAudioPlayer && currentAudioUrl === url) {
+                if (currentAudioPlayer.paused) currentAudioPlayer.play(); else currentAudioPlayer.pause();
+                return;
+            }
+            if (currentAudioPlayer) { currentAudioPlayer.pause(); currentAudioPlayer.currentTime = 0; }
+            currentAudioPlayer = new Audio(url); currentAudioUrl = url; currentAudioPlayer.play();
+        }
+
+        let sessionMetrics = { inputs: 0, outputs: 0, cost: 0.0, sumRag: 0.0, sumLatency: 0.0, turnCount: 0 };
+        function updateGlobalTelemetryStrip(data) {
+            if (!data.metrics) return;
+            const latestInput = parseInt(data.metrics.input_tokens) || 0;
+            const latestOutput = parseInt(data.metrics.output_tokens) || 0;
+            const latestCost = parseFloat(String(data.metrics.api_cost).replace('$', '')) || 0.0;
+            const latestRag = parseFloat(data.metrics.rag_confidence) || 0.0;
+            const latestLatency = parseFloat(String(data.metrics.latency).replace('s', '')) || 0.0;
+
+            sessionMetrics.inputs += latestInput; sessionMetrics.outputs += latestOutput; sessionMetrics.cost += latestCost; sessionMetrics.sumRag += latestRag; sessionMetrics.sumLatency += latestLatency; sessionMetrics.turnCount += 1;
+
+            document.getElementById('uiInputTokens').textContent = latestInput; document.getElementById('uiTotalInput').textContent = `Tot: ${sessionMetrics.inputs}`;
+            document.getElementById('uiOutputTokens').textContent = latestOutput; document.getElementById('uiTotalOutput').textContent = `Tot: ${sessionMetrics.outputs}`;
+            document.getElementById('uiCost').textContent = `$${latestCost.toFixed(6)}`; document.getElementById('uiTotalCost').textContent = `Tot: $${sessionMetrics.cost.toFixed(6)}`;
+            document.getElementById('uiRag').textContent = latestRag.toFixed(2); document.getElementById('uiAvgRag').textContent = `Avg: ${(sessionMetrics.sumRag / sessionMetrics.turnCount).toFixed(2)}`;
+            document.getElementById('uiLatency').textContent = `${latestLatency.toFixed(2)}s`; document.getElementById('uiAvgLatency').textContent = `Avg: ${(sessionMetrics.sumLatency / sessionMetrics.turnCount).toFixed(2)}s`;
+        }
+
+        // TEXT PIPELINE
+        async function runTextSubmission() {
+            const val = textInput.value.trim();
+            if(!val) return;
+
+            textInput.value = '';
+            textInput.disabled = true; textSubmitBtn.disabled = true;
+            statusInd.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-yellow-400"></span> Processing';
+
+            appendUserMessage(val);
+            showLoadingBubble("AI is reasoning...");
+
+            const form = new FormData(); form.append('text_query', val);
+
+            try {
+                const res = await fetch('/api/query', { method: 'POST', body: form });
+                const json = await res.json();
+                removeLoadingBubble();
+                if (res.ok) appendAIMessage(json); else appendErrorCard(JSON.stringify(json.detail || "Server rejected request."));
+            } catch(e) {
+                removeLoadingBubble(); appendErrorCard("Network error. Could not connect to backend.");
+            } finally {
+                textInput.disabled = false; textSubmitBtn.disabled = false;
+                statusInd.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> System Ready';
+                textInput.focus();
+            }
+        }
+        textSubmitBtn.addEventListener('click', runTextSubmission);
+        textInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') runTextSubmission(); });
+
+        // NEW WHATSAPP STYLE VOICE LOGIC
+        let mediaRecorder;
+        let audioChunks = [];
+        let cancelAudio = false; // The flag for discarding
+
+        navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1 } }).then(stream => {
+            mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
+            mediaRecorder.ondataavailable = e => { audioChunks.push(e.data); };
+
+            mediaRecorder.onstop = async () => {
+                // If the user hit discard, quietly kill the process and return early.
+                if (cancelAudio) {
+                    audioChunks = [];
+                    return;
+                }
+
+                statusInd.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-yellow-400"></span> Processing Voice';
+                showLoadingBubble("Transcribing & Reasoning...");
+
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm;codecs=opus' });
+                const formData = new FormData();
+                formData.append('audio_file', audioBlob, 'recording.webm');
+
+                try {
+                    const res = await fetch('/api/voice', { method: 'POST', body: formData });
+                    const data = await res.json();
+
+                    removeLoadingBubble();
+                    if (res.ok) {
+                        appendUserMessage("🎤 " + (data.transcript || "Voice Command"));
+                        appendAIMessage(data);
+                        if (data.audio_url) playTurnAudio(data.audio_url);
+                    } else {
+                        // Captures the new 400 Empty String error from backend!
+                        appendErrorCard(data.detail || "Server rejected voice request.");
+                    }
+                } catch (error) {
+                    removeLoadingBubble();
+                    appendErrorCard("Network error. Could not connect to backend.");
+                } finally {
+                    statusInd.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> System Ready';
+                }
+                audioChunks = [];
+            };
+        }).catch(err => {
+            textInput.placeholder = "Microphone access denied."; textInput.disabled = true;
+        });
+
+        // 1. Start Recording
+        micBtn.addEventListener('click', () => {
+            if (mediaRecorder && mediaRecorder.state === 'inactive') {
+                audioChunks = [];
+                cancelAudio = false;
+                mediaRecorder.start();
+
+                // Toggle UI
+                standardUI.classList.add('hidden'); standardUI.classList.remove('flex');
+                recordingUI.classList.remove('hidden'); recordingUI.classList.add('flex');
+                statusInd.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse"></span> Listening';
+            }
+        });
+
+        // 2. Discard Audio (Trash Button)
+        discardAudioBtn.addEventListener('click', () => {
+            cancelAudio = true;
+            mediaRecorder.stop();
+
+            // Toggle UI back
+            recordingUI.classList.add('hidden'); recordingUI.classList.remove('flex');
+            standardUI.classList.remove('hidden'); standardUI.classList.add('flex');
+            statusInd.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> System Ready';
+        });
+
+        // 3. Send Audio (Send Button)
+        sendAudioBtn.addEventListener('click', () => {
+            cancelAudio = false;
+            mediaRecorder.stop();
+
+            // Toggle UI back
+            recordingUI.classList.add('hidden'); recordingUI.classList.remove('flex');
+            standardUI.classList.remove('hidden'); standardUI.classList.add('flex');
+        });
+
+        // PDF UPLOAD LOGIC
+        document.getElementById('pdfUpload').addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const statusText = document.getElementById('uploadStatus');
+            statusText.textContent = `Uploading & Learning: ${file.name}...`;
+
+            const formData = new FormData(); formData.append('file', file);
+            try {
+                const response = await fetch('/api/upload', { method: 'POST', body: formData });
+                if(response.ok) {
+                    statusText.textContent = "✅ Knowledge Base Updated successfully.";
+                    const statusRes = await fetch('/api/status');
+                    const statusData = await statusRes.json();
+                    document.getElementById('activePolicyName').textContent = statusData.active_policy;
+                } else throw new Error("Upload failed");
+                setTimeout(() => { statusText.textContent = ""; }, 4000);
+            } catch (error) {
+                statusText.textContent = "❌ Upload Failed. Check Backend.";
+                setTimeout(() => { statusText.textContent = ""; }, 4000);
+            } finally { event.target.value = ''; }
+        });
+    </script>
+</body>
+</html>
